@@ -18,6 +18,9 @@ import HomeIcon from '@mui/icons-material/Home';
 
 import React from 'react';
 
+// @TODO: Temporary. Swap this out with a router.
+import Home from './screens/Home';
+
 const drawerWidth = 240;
 
 function App() {
@@ -89,7 +92,7 @@ function App() {
       </Box>
       <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
         <Toolbar />
-        <Typography>Hello World.</Typography>
+        <Home />
       </Box>
     </Box>
   );
