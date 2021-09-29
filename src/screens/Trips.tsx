@@ -1,11 +1,15 @@
 import {
   Card,
+  CardActions,
   CardContent,
   Grid,
+  IconButton,
   Typography
 } from '@mui/material';
 
 import React from 'react';
+
+import EditIcon from '@mui/icons-material/Edit';
 
 class Trips extends React.Component<{}, { isError: boolean, isLoaded: boolean, trips: Array<{}> }> {
   constructor(props: any) {
@@ -68,6 +72,11 @@ class Trips extends React.Component<{}, { isError: boolean, isLoaded: boolean, t
                     End: {this.timestampToDate(trip.end)}
                   </Typography>
                 </CardContent>
+                <CardActions disableSpacing>
+                  <IconButton aria-label="edit">
+                    <EditIcon />
+                  </IconButton>
+                </CardActions>
               </Card>
             </Grid>
           ))}

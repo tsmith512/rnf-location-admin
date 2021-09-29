@@ -58,7 +58,7 @@ class Home extends React.Component<{}, { isError: boolean, isLoaded: boolean, wa
       <React.Fragment>
         <Grid container spacing={2}>
           <Grid item xs={6}>
-            <Card>
+            <Card sx={{ height: '100%' }}>
               <CardContent>
                 <Typography variant="overline" color="text.secondary" gutterBottom>Location</Typography>
                 <Typography variant="h5" component="div">
@@ -68,7 +68,7 @@ class Home extends React.Component<{}, { isError: boolean, isLoaded: boolean, wa
             </Card>
           </Grid>
           <Grid item xs={6}>
-            <Card>
+            <Card sx={{ height: '100%' }}>
               <CardContent>
                 <Typography variant="overline" color="text.secondary" gutterBottom>Last Reported</Typography>
                 <Typography variant="h5" component="div">
