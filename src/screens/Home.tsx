@@ -1,9 +1,7 @@
 import {
-  Box,
   Card,
   CardContent,
   Grid,
-  Paper,
   Typography
 } from '@mui/material';
 
@@ -21,11 +19,11 @@ class Home extends React.Component<{}, { isError: boolean, isLoaded: boolean, wa
   }
 
   componentDidMount() {
-    fetch("API HOSTNAME/waypoints", {
+    fetch(`${process.env.REACT_APP_API_HOSTNAME}/waypoints`, {
       headers: {
         // @TODO: /waypoint is filtered, but /waypoints isn't for a single item
         'Range': '0-1',
-        'Authorization': 'Basic AUTH STRING',
+        'Authorization': 'Basic ' + btoa(`${process.env.REACT_APP_API_USERNAME}:${process.env.REACT_APP_API_PASSWORD}`),
       }
     })
     .then(res => res.json())
@@ -39,12 +37,12 @@ class Home extends React.Component<{}, { isError: boolean, isLoaded: boolean, wa
         })
       },
       (error) => {
-        console.log(error)
+        console.log(error);
         this.setState({
           isLoaded: false,
           isError: true,
           waypoint: null,
-        })
+        });
       }
     )
   }
