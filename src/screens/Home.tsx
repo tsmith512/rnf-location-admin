@@ -29,7 +29,6 @@ class Home extends React.Component<{}, { isError: boolean, isLoaded: boolean, wa
     .then(res => res.json())
     .then(
       (result) => {
-        console.log(result[0]);
         this.setState({
           isLoaded: true,
           isError: false,
@@ -61,7 +60,7 @@ class Home extends React.Component<{}, { isError: boolean, isLoaded: boolean, wa
           <Grid item xs={6}>
             <Card>
               <CardContent>
-                <Typography sx={{ fontSize: 14 }} color="text.secondary" gutterBottom>Location</Typography>
+                <Typography variant="overline" color="text.secondary" gutterBottom>Location</Typography>
                 <Typography variant="h5" component="div">
                   {waypoint?.label}
                 </Typography>
@@ -71,7 +70,7 @@ class Home extends React.Component<{}, { isError: boolean, isLoaded: boolean, wa
           <Grid item xs={6}>
             <Card>
               <CardContent>
-                <Typography sx={{ fontSize: 14 }} color="text.secondary" gutterBottom>Last Reported</Typography>
+                <Typography variant="overline" color="text.secondary" gutterBottom>Last Reported</Typography>
                 <Typography variant="h5" component="div">
                   {this.timestampToDate(waypoint?.timestamp)}
                 </Typography>
@@ -81,7 +80,7 @@ class Home extends React.Component<{}, { isError: boolean, isLoaded: boolean, wa
           <Grid item xs={12}>
             <Card>
               <CardContent>
-                <Typography sx={{ fontSize: 14 }} color="text.secondary" gutterBottom>Placeholder</Typography>
+                <Typography color="text.secondary" gutterBottom>Placeholder</Typography>
                 <Typography variant="h5" component="div">Map of {waypoint?.lon}, {waypoint?.lat} </Typography>
               </CardContent>
             </Card>
