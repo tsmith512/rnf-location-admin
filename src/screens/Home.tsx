@@ -7,6 +7,8 @@ import {
 
 import React from 'react';
 
+import { timestampToDate } from '../lib/util';
+
 class Home extends React.Component<{}, { isError: boolean, isLoaded: boolean, waypoint: any }> {
   constructor(props: any) {
     super(props);
@@ -46,11 +48,6 @@ class Home extends React.Component<{}, { isError: boolean, isLoaded: boolean, wa
     )
   }
 
-  timestampToDate(input: number): string {
-    const date = new Date(input * 1000);
-    return date.toLocaleString();
-  }
-
   render() {
     const { waypoint } = this.state;
 
@@ -72,7 +69,7 @@ class Home extends React.Component<{}, { isError: boolean, isLoaded: boolean, wa
               <CardContent>
                 <Typography variant="overline" color="text.secondary" gutterBottom>Last Reported</Typography>
                 <Typography variant="h5" component="div">
-                  {this.timestampToDate(waypoint?.timestamp)}
+                  {timestampToDate(waypoint?.timestamp)}
                 </Typography>
               </CardContent>
             </Card>

@@ -11,6 +11,8 @@ import React from 'react';
 
 import EditIcon from '@mui/icons-material/Edit';
 
+import { timestampToDate } from '../lib/util';
+
 class Trips extends React.Component<{}, { isError: boolean, isLoaded: boolean, trips: Array<{}> }> {
   constructor(props: any) {
     super(props);
@@ -44,11 +46,6 @@ class Trips extends React.Component<{}, { isError: boolean, isLoaded: boolean, t
     )
   }
 
-  timestampToDate(input: number): string {
-    const date = new Date(input * 1000);
-    return date.toLocaleString();
-  }
-
   render() {
     const { trips } = this.state;
 
@@ -66,10 +63,10 @@ class Trips extends React.Component<{}, { isError: boolean, isLoaded: boolean, t
                     {trip.label}
                   </Typography>
                   <Typography variant="caption" component="div" gutterBottom>
-                    Start: {this.timestampToDate(trip.start)}
+                    Start: {timestampToDate(trip.start)}
                   </Typography>
                   <Typography variant="caption" component="div" gutterBottom>
-                    End: {this.timestampToDate(trip.end)}
+                    End: {timestampToDate(trip.end)}
                   </Typography>
                 </CardContent>
                 <CardActions disableSpacing>
