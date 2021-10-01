@@ -1,19 +1,27 @@
 import {
+  Box,
   Card,
   CardActions,
   CardContent,
   Container,
   Grid,
   IconButton,
+  TextField,
   Typography
 } from '@mui/material';
+
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+
+import AdapterDateFns from '@mui/lab/AdapterDayjs';
+import LocalizationProvider from '@mui/lab/LocalizationProvider';
 
 import React from 'react';
 
 import { timestampToDate } from '../lib/util';
 
-import { RouteComponentProps, withRouter } from 'react-router-dom';
+import { Link, RouteComponentProps, withRouter } from 'react-router-dom';
 import { StaticMap } from '../components/StaticMap';
+import { DateTimePicker } from '@mui/lab';
 
 var polyline = require('@mapbox/polyline');
 
@@ -66,24 +74,42 @@ class TripDetails extends React.Component<PropsType, { isError: boolean, isLoade
     const { isLoaded, trip } = this.state;
 
     if (isLoaded) {
+      const start = new Date(trip.start * 1000);
+      const end = new Date(trip.end * 1000);
+
       return (
         <Container maxWidth="md">
-          <Typography variant="h2" component="h2" gutterBottom>Details</Typography>
+          <IconButton component={Link} to={`/trips`} aria-label="back">
+            <ArrowBackIcon />
+          </IconButton>
+          <Typography variant="h2" component="h2" gutterBottom>Details #{trip.id}</Typography>
           <Card>
             <StaticMap line={polyline.fromGeoJSON(trip.line)} />
             <CardContent>
-              <Typography variant="overline" color="text.secondary" gutterBottom>
-                {trip.id} / {trip.slug}
-              </Typography>
-              <Typography variant="h5" component="div" gutterBottom>
-                {trip.label}
-              </Typography>
-              <Typography variant="caption" component="div" gutterBottom>
-                Start: {timestampToDate(trip.start)}
-              </Typography>
-              <Typography variant="caption" component="div" gutterBottom>
-                End: {timestampToDate(trip.end)}
-              </Typography>
+              <Box component="form" sx={{ m: [1, 0],
+                '& > :not(style)': { marginBottom: 2, width: '100%' },
+              }}
+              noValidate
+              autoComplete="off">
+                <TextField defaultValue={trip.slug} label="Slug" variant="outlined" />
+                <TextField defaultValue={trip.label} label="Label" variant="outlined" />
+              </Box>
+              <LocalizationProvider dateAdapter={AdapterDateFns}>
+                <Box sx={{ m: [1, 0],
+                  '& > :not(style)': { marginBottom: 2, width: '100%' },
+                }}>
+                  <DateTimePicker renderInput={(props) => <TextField {...props} />}
+                    label="Start"
+                    value={start}
+                    onChange={(newValue) => { alert(newValue); } }
+                    />
+                  <DateTimePicker renderInput={(props) => <TextField {...props} />}
+                    label="End"
+                    value={end}
+                    onChange={(newValue) => { alert(newValue); } }
+                    />
+                </Box>
+              </LocalizationProvider>
             </CardContent>
           </Card>
         </Container>
@@ -91,6 +117,9 @@ class TripDetails extends React.Component<PropsType, { isError: boolean, isLoade
     } else {
       return (
         <Container maxWidth="md">
+          <IconButton component={Link} to={`/trips`} aria-label="back">
+            <ArrowBackIcon />
+          </IconButton>
           <Typography variant="h2" component="h2" gutterBottom>Loading</Typography>
         </Container>
       )
