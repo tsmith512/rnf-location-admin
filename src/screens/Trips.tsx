@@ -2,6 +2,7 @@ import {
   Card,
   CardActions,
   CardContent,
+  Container,
   Grid,
   IconButton,
   Typography
@@ -48,10 +49,12 @@ class Trips extends React.Component<{}, { isError: boolean, isLoaded: boolean, t
   }
 
   render() {
-    const { trips } = this.state;
+    const { isLoaded, trips } = this.state;
 
     return (
-      <React.Fragment>
+      <Container maxWidth="md">
+        {isLoaded && <Typography variant="h2" component="h2" gutterBottom>Trips</Typography> }
+        {!isLoaded && <Typography variant="h2" component="h2" gutterBottom>Loading</Typography> }
         <Grid container spacing={2}>
           {trips.map((trip: any, index: number) => (
             <Grid item xs={12} md={6} key={index}>
@@ -79,7 +82,7 @@ class Trips extends React.Component<{}, { isError: boolean, isLoaded: boolean, t
             </Grid>
           ))}
         </Grid>
-      </React.Fragment>
+      </Container>
     );
   }
 }

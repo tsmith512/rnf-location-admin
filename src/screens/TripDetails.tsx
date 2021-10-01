@@ -2,6 +2,7 @@ import {
   Card,
   CardActions,
   CardContent,
+  Container,
   Grid,
   IconButton,
   Typography
@@ -66,7 +67,8 @@ class TripDetails extends React.Component<PropsType, { isError: boolean, isLoade
 
     if (isLoaded) {
       return (
-        <React.Fragment>
+        <Container maxWidth="md">
+          <Typography variant="h2" component="h2" gutterBottom>Details</Typography>
           <Card>
             <StaticMap line={polyline.fromGeoJSON(trip.line)} />
             <CardContent>
@@ -84,13 +86,13 @@ class TripDetails extends React.Component<PropsType, { isError: boolean, isLoade
               </Typography>
             </CardContent>
           </Card>
-        </React.Fragment>
+        </Container>
       );
     } else {
       return (
-        <React.Fragment>
-          <Typography>Loading</Typography>
-        </React.Fragment>
+        <Container maxWidth="md">
+          <Typography variant="h2" component="h2" gutterBottom>Loading</Typography>
+        </Container>
       )
     }
   }

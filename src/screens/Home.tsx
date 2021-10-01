@@ -2,6 +2,8 @@ import {
   Card,
   CardContent,
   CardMedia,
+  Container,
+  Divider,
   Grid,
   Typography
 } from '@mui/material';
@@ -54,7 +56,10 @@ class Home extends React.Component<{}, { isError: boolean, isLoaded: boolean, wa
     const { isLoaded, waypoint } = this.state;
 
     return (
-      <React.Fragment>
+      <Container maxWidth="md">
+        {isLoaded && <Typography variant="h2" component="h2" gutterBottom>Latest</Typography> }
+        {!isLoaded && <Typography variant="h2" component="h2" gutterBottom>Loading</Typography> }
+
         <Grid container spacing={2}>
           <Grid item xs={6}>
             <Card sx={{ height: '100%' }}>
@@ -85,7 +90,7 @@ class Home extends React.Component<{}, { isError: boolean, isLoaded: boolean, wa
             </Card>
           </Grid>
         </Grid>
-      </React.Fragment>
+      </Container>
     );
   }
 }
