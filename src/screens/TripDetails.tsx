@@ -4,20 +4,18 @@ import {
   CardActions,
   CardContent,
   Container,
-  Grid,
   IconButton,
   TextField,
   Typography
 } from '@mui/material';
 
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import SaveIcon from '@mui/icons-material/Save';
 
 import AdapterDateFns from '@mui/lab/AdapterDayjs';
 import LocalizationProvider from '@mui/lab/LocalizationProvider';
 
 import React from 'react';
-
-import { timestampToDate } from '../lib/util';
 
 import { Link, RouteComponentProps, withRouter } from 'react-router-dom';
 import { StaticMap } from '../components/StaticMap';
@@ -43,6 +41,7 @@ class TripDetails extends React.Component<PropsType, { isError: boolean, isLoade
     };
 
     this.handleUpdate = this.handleUpdate.bind(this);
+    this.saveRecord = this.saveRecord.bind(this);
   }
 
   componentDidMount() {
@@ -66,7 +65,47 @@ class TripDetails extends React.Component<PropsType, { isError: boolean, isLoade
           trip: [],
         });
       }
-    )
+    );
+  }
+
+  saveRecord(): void {
+    const trip = Object.assign({}, this.state.trip);
+
+    const payload = {
+      id: trip.id,
+      label: trip.label || '',
+      slug: trip.slug,
+      start: trip.start,
+      end: trip.end,
+    };
+
+    fetch(`${process.env.REACT_APP_API_HOSTNAME}/trip`, {
+      method: 'POST',
+      headers: {
+        'Authorization': 'Basic ' + btoa(`${process.env.REACT_APP_API_USERNAME}:${process.env.REACT_APP_API_PASSWORD}`),
+      },
+      body: JSON.stringify(payload),
+    })
+    .then(res => res.json())
+    .then(
+      (result) => {
+        // @TODO: Check if 201 and throw a toast.
+        alert('Saved');
+
+        // Rerun the initial fetch. The upsert hits a table, not the view that
+        // assembles the GeoJSON line and boundaries box.
+        this.componentDidMount();
+      },
+      (error) => {
+        // @TODO: Render these in the body area
+        console.log(error);
+        this.setState({
+          isLoaded: false,
+          isError: true,
+          trip: [],
+        });
+      }
+    );
   }
 
   handleUpdate(e: any): void {
@@ -105,7 +144,7 @@ class TripDetails extends React.Component<PropsType, { isError: boolean, isLoade
           </IconButton>
           <Typography variant="h2" component="h2" gutterBottom>Details #{trip.id}</Typography>
           <Card>
-            <StaticMap line={polyline.fromGeoJSON(trip.line)} />
+            { trip.line && <StaticMap line={polyline.fromGeoJSON(trip.line)} /> }
             <CardContent>
               <Box component="form" sx={{ m: [1, 0],
                 '& > :not(style)': { marginBottom: 2, width: '100%' },
@@ -132,6 +171,11 @@ class TripDetails extends React.Component<PropsType, { isError: boolean, isLoade
                 </Box>
               </LocalizationProvider>
             </CardContent>
+            <CardActions disableSpacing>
+              <IconButton aria-label="save" onClick={this.saveRecord}>
+                <SaveIcon />
+              </IconButton>
+            </CardActions>
           </Card>
         </Container>
       );
