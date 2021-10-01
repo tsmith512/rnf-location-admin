@@ -1,25 +1,44 @@
 import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+
+import { Route, BrowserRouter, Switch } from 'react-router-dom';
+
+import {
+  Box,
+  CssBaseline,
+  Toolbar,
+} from '@mui/material';
+
+import { Routes } from './routes';
+import { Header } from './components/Header';
+import { NavContainer } from './components/NavContainer';
+
+const drawerWidth = 240;
 
 function App() {
+  const [mobileOpen, setMobileOpen] = React.useState(false);
+
+  const handleDrawerToggle = () => {
+    setMobileOpen(!mobileOpen);
+  };
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <BrowserRouter>
+      <CssBaseline />
+      <Box sx={{ display: 'flex' }}>
+        <Header drawerWidth={drawerWidth} drawerHandler={handleDrawerToggle} />
+        <NavContainer drawerWidth={drawerWidth} drawerHandler={handleDrawerToggle} drawerState={mobileOpen} />
+        <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
+          <Toolbar />
+          <Switch>
+            {Routes.map((route: any) => (
+              <Route exact path={route.path} key={route.path}>
+                <route.screen />
+              </Route>
+            ))}
+          </Switch>
+        </Box>
+      </Box>
+    </BrowserRouter>
   );
 }
 
