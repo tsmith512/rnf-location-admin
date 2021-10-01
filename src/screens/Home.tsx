@@ -6,6 +6,7 @@ import {
 } from '@mui/material';
 
 import React from 'react';
+import { StaticMap } from '../components/StaticMap';
 
 import { timestampToDate } from '../lib/util';
 
@@ -49,7 +50,7 @@ class Home extends React.Component<{}, { isError: boolean, isLoaded: boolean, wa
   }
 
   render() {
-    const { waypoint } = this.state;
+    const { isLoaded, waypoint } = this.state;
 
     return (
       <React.Fragment>
@@ -79,6 +80,7 @@ class Home extends React.Component<{}, { isError: boolean, isLoaded: boolean, wa
               <CardContent>
                 <Typography color="text.secondary" gutterBottom>Placeholder</Typography>
                 <Typography variant="h5" component="div">Map of {waypoint?.lon}, {waypoint?.lat} </Typography>
+                {isLoaded && <StaticMap lat={waypoint.lat} lon={waypoint.lon} marker />}
               </CardContent>
             </Card>
           </Grid>
