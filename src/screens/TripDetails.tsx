@@ -30,13 +30,14 @@ type PathParamsType = {
 
 type PropsType = RouteComponentProps<PathParamsType>;
 
-class TripDetails extends React.Component<PropsType, { isError: boolean, isLoaded: boolean, trip: any }> {
+class TripDetails extends React.Component<PropsType, { isError: boolean, isLoaded: boolean, isCreate: boolean, trip: any }> {
   constructor(props: any) {
     super(props);
 
     this.state = {
       isError: false,
       isLoaded: false,
+      isCreate: false,
       trip: {},
     };
 
@@ -47,25 +48,38 @@ class TripDetails extends React.Component<PropsType, { isError: boolean, isLoade
   componentDidMount() {
     const id = this.props.match.params.id;
 
-    fetch(`${process.env.REACT_APP_API_HOSTNAME}/trip/${id}`)
-    .then(res => res.json())
-    .then(
-      (result) => {
-        this.setState({
-          isLoaded: true,
-          isError: false,
-          trip: result,
-        })
-      },
-      (error) => {
-        console.log(error);
-        this.setState({
-          isLoaded: false,
-          isError: true,
-          trip: [],
-        });
-      }
-    );
+    if (id) {
+      fetch(`${process.env.REACT_APP_API_HOSTNAME}/trip/${id}`)
+      .then(res => res.json())
+      .then(
+        (result) => {
+          this.setState({
+            isLoaded: true,
+            isError: false,
+            isCreate: false,
+            trip: result,
+          })
+        },
+        (error) => {
+          console.log(error);
+          this.setState({
+            isLoaded: false,
+            isError: true,
+            isCreate: false,
+            trip: {},
+          });
+        }
+      );
+    } else {
+      this.setState({
+        isLoaded: true,
+        isCreate: true,
+        trip: {
+          label: '',
+          slug: '',
+        }
+      });
+    }
   }
 
   saveRecord(): void {
@@ -92,6 +106,11 @@ class TripDetails extends React.Component<PropsType, { isError: boolean, isLoade
         // @TODO: Check if 201 and throw a toast.
         alert('Saved');
 
+        if (result.id !== this.props.match.params.id) {
+          // Most likely case is that a trip was created.
+          this.props.history.push(`/trip/${result.id}`);
+        }
+
         // Rerun the initial fetch. The upsert hits a table, not the view that
         // assembles the GeoJSON line and boundaries box.
         this.componentDidMount();
@@ -102,7 +121,7 @@ class TripDetails extends React.Component<PropsType, { isError: boolean, isLoade
         this.setState({
           isLoaded: false,
           isError: true,
-          trip: [],
+          trip: {},
         });
       }
     );
@@ -134,15 +153,16 @@ class TripDetails extends React.Component<PropsType, { isError: boolean, isLoade
     const { isLoaded, trip } = this.state;
 
     if (isLoaded) {
-      const start = new Date(trip.start * 1000);
-      const end = new Date(trip.end * 1000);
+      const start = trip.start ? new Date(trip.start * 1000) : new Date();
+      const end = trip.start ? new Date(trip.end * 1000) : new Date();
 
       return (
         <Container maxWidth="md">
           <IconButton component={Link} to={`/trips`} aria-label="back">
             <ArrowBackIcon />
           </IconButton>
-          <Typography variant="h2" component="h2" gutterBottom>Details #{trip.id}</Typography>
+          { trip.id && <Typography variant="h2" component="h2" gutterBottom>Details #{trip.id}</Typography> }
+          { !trip.id && <Typography variant="h2" component="h2" gutterBottom>Create</Typography> }
           <Card>
             { trip.line && <StaticMap line={polyline.fromGeoJSON(trip.line)} /> }
             <CardContent>

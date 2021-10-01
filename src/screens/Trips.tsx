@@ -1,4 +1,6 @@
 import {
+  Box,
+  Button,
   Card,
   CardActions,
   CardContent,
@@ -11,6 +13,7 @@ import {
 import React from 'react';
 
 import EditIcon from '@mui/icons-material/Edit';
+import NoteAddIcon from '@mui/icons-material/NoteAdd';
 
 import { timestampToDate } from '../lib/util';
 import { Link } from 'react-router-dom';
@@ -55,6 +58,11 @@ class Trips extends React.Component<{}, { isError: boolean, isLoaded: boolean, t
       <Container maxWidth="md">
         {isLoaded && <Typography variant="h2" component="h2" gutterBottom>Trips</Typography> }
         {!isLoaded && <Typography variant="h2" component="h2" gutterBottom>Loading</Typography> }
+        <Box sx={{ paddingBottom: 2 }}>
+          <Button variant="contained" startIcon={<NoteAddIcon />} component={Link} to={`/trip/new`} aria-label="new">
+            Create
+          </Button>
+        </Box>
         <Grid container spacing={2}>
           {trips.map((trip: any, index: number) => (
             <Grid item xs={12} md={6} key={index}>
