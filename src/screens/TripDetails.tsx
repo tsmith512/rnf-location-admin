@@ -25,15 +25,12 @@ import { DateTimePicker } from '@mui/lab';
 
 var polyline = require('@mapbox/polyline');
 
-// Type whatever you expect in 'this.props.match.params.*'
+// These two nested types made Typescript happy using withRouter & params.
 type PathParamsType = {
   id: string,
 }
 
-// Your component own properties
-type PropsType = RouteComponentProps<PathParamsType> & {
-  someString: string,
-}
+type PropsType = RouteComponentProps<PathParamsType>;
 
 class TripDetails extends React.Component<PropsType, { isError: boolean, isLoaded: boolean, trip: any }> {
   constructor(props: any) {
@@ -44,6 +41,8 @@ class TripDetails extends React.Component<PropsType, { isError: boolean, isLoade
       isLoaded: false,
       trip: {},
     };
+
+    this.handleUpdate = this.handleUpdate.bind(this);
   }
 
   componentDidMount() {
@@ -70,6 +69,28 @@ class TripDetails extends React.Component<PropsType, { isError: boolean, isLoade
     )
   }
 
+  handleUpdate(e: any): void {
+    const trip = Object.assign({}, this.state.trip);
+    trip[e.target.name] = e.target.value;
+
+    this.setState((state, props) => {
+      return {
+        trip: trip,
+      }
+    });
+  }
+
+  handleTimeUpdate(type: string, val: any): void {
+    const trip = Object.assign({}, this.state.trip);
+    trip[type] = val.unix();
+
+    this.setState((state, props) => {
+      return {
+        trip: trip,
+      }
+    });
+  }
+
   render() {
     const { isLoaded, trip } = this.state;
 
@@ -91,8 +112,8 @@ class TripDetails extends React.Component<PropsType, { isError: boolean, isLoade
               }}
               noValidate
               autoComplete="off">
-                <TextField defaultValue={trip.slug} label="Slug" variant="outlined" />
-                <TextField defaultValue={trip.label} label="Label" variant="outlined" />
+                <TextField defaultValue={trip.slug} label="Slug" name="slug" variant="outlined" onChange={this.handleUpdate} />
+                <TextField defaultValue={trip.label} label="Label" name="label" variant="outlined" onChange={this.handleUpdate} />
               </Box>
               <LocalizationProvider dateAdapter={AdapterDateFns}>
                 <Box sx={{ m: [1, 0],
@@ -101,12 +122,12 @@ class TripDetails extends React.Component<PropsType, { isError: boolean, isLoade
                   <DateTimePicker renderInput={(props) => <TextField {...props} />}
                     label="Start"
                     value={start}
-                    onChange={(newValue) => { alert(newValue); } }
+                    onChange={n => {this.handleTimeUpdate('start', n)}}
                     />
                   <DateTimePicker renderInput={(props) => <TextField {...props} />}
                     label="End"
                     value={end}
-                    onChange={(newValue) => { alert(newValue); } }
+                    onChange={n => {this.handleTimeUpdate('end', n)}}
                     />
                 </Box>
               </LocalizationProvider>
