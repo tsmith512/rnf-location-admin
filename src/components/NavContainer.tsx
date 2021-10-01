@@ -26,7 +26,7 @@ const NavDrawer: React.FC = () => (
     <Divider />
     <List>
       {Routes.map((route: any, index: number) => {
-        if (!route.icon) { return };
+        if (!route.icon) { return (<React.Fragment />) };
 
         return (
           <ListItem button key={index} to={route.path} component={Link}>

@@ -12,6 +12,9 @@ import React from 'react';
 import { timestampToDate } from '../lib/util';
 
 import { RouteComponentProps, withRouter } from 'react-router-dom';
+import { StaticMap } from '../components/StaticMap';
+
+var polyline = require('@mapbox/polyline');
 
 // Type whatever you expect in 'this.props.match.params.*'
 type PathParamsType = {
@@ -65,6 +68,7 @@ class TripDetails extends React.Component<PropsType, { isError: boolean, isLoade
       return (
         <React.Fragment>
           <Card>
+            <StaticMap line={polyline.fromGeoJSON(trip.line)} />
             <CardContent>
               <Typography variant="overline" color="text.secondary" gutterBottom>
                 {trip.id} / {trip.slug}
@@ -80,8 +84,6 @@ class TripDetails extends React.Component<PropsType, { isError: boolean, isLoade
               </Typography>
             </CardContent>
           </Card>
-
-          {JSON.stringify(trip)}
         </React.Fragment>
       );
     } else {
