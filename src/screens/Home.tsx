@@ -1,6 +1,7 @@
 import {
   Card,
   CardContent,
+  CardMedia,
   Grid,
   Typography
 } from '@mui/material';
@@ -77,10 +78,9 @@ class Home extends React.Component<{}, { isError: boolean, isLoaded: boolean, wa
           </Grid>
           <Grid item xs={12}>
             <Card>
+              {isLoaded && <StaticMap lat={waypoint.lat} lon={waypoint.lon} marker />}
               <CardContent>
-                <Typography color="text.secondary" gutterBottom>Placeholder</Typography>
-                <Typography variant="h5" component="div">Map of {waypoint?.lon}, {waypoint?.lat} </Typography>
-                {isLoaded && <StaticMap lat={waypoint.lat} lon={waypoint.lon} marker />}
+                <Typography variant="overline" component="div">Map of {waypoint?.lon}, {waypoint?.lat} </Typography>
               </CardContent>
             </Card>
           </Grid>

@@ -1,4 +1,4 @@
-import { Home, Trips } from '../screens';
+import { Home, Trips, TripDetails } from '../screens';
 
 import HomeIcon from '@mui/icons-material/Home';
 import MapIcon from '@mui/icons-material/Map';
@@ -15,6 +15,11 @@ const Routes = [
     title: 'Trips',
     icon: MapIcon,
     screen: Trips,
+  },
+  {
+    path: '/trip/:id',
+    title: 'Trip ID',
+    screen: TripDetails,
   },
 ];
 

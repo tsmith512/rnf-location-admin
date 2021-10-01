@@ -12,6 +12,7 @@ import React from 'react';
 import EditIcon from '@mui/icons-material/Edit';
 
 import { timestampToDate } from '../lib/util';
+import { Link } from 'react-router-dom';
 
 class Trips extends React.Component<{}, { isError: boolean, isLoaded: boolean, trips: Array<{}> }> {
   constructor(props: any) {
@@ -70,7 +71,7 @@ class Trips extends React.Component<{}, { isError: boolean, isLoaded: boolean, t
                   </Typography>
                 </CardContent>
                 <CardActions disableSpacing>
-                  <IconButton aria-label="edit">
+                  <IconButton component={Link} to={`/trip/${trip.id}`} aria-label="edit">
                     <EditIcon />
                   </IconButton>
                 </CardActions>

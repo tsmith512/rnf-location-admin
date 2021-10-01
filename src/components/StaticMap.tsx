@@ -1,3 +1,4 @@
+import { CardMedia } from '@mui/material';
 import React from 'react';
 
 interface StaticMapsProps {
@@ -21,6 +22,6 @@ export const StaticMap: React.FC<StaticMapsProps> = (props) => {
   }
 
   return (
-    <img src={`https://maps.googleapis.com/maps/api/staticmap?` + options.join('&')} />
+    <CardMedia component="img" image={`https://maps.googleapis.com/maps/api/staticmap?` + options.join('&')} />
   );
 }
