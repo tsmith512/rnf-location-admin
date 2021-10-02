@@ -18,8 +18,15 @@ import LocalizationProvider from '@mui/lab/LocalizationProvider';
 import React from 'react';
 
 import { Link, RouteComponentProps, withRouter } from 'react-router-dom';
-import { StaticMap } from '../components/StaticMap';
 import { DateTimePicker } from '@mui/lab';
+
+import { Loader } from '@googlemaps/js-api-loader';
+import { isConstructorDeclaration } from 'typescript';
+
+const loader = new Loader({
+  apiKey: process.env.REACT_APP_GMAPS_API_KEY || '',
+  version: 'weekly',
+});
 
 var polyline = require('@mapbox/polyline');
 
@@ -31,6 +38,8 @@ type PathParamsType = {
 type PropsType = RouteComponentProps<PathParamsType>;
 
 class TripDetails extends React.Component<PropsType, { isError: boolean, isLoaded: boolean, isCreate: boolean, trip: any }> {
+  map!: google.maps.Map;
+
   constructor(props: any) {
     super(props);
 
@@ -58,7 +67,38 @@ class TripDetails extends React.Component<PropsType, { isError: boolean, isLoade
             isError: false,
             isCreate: false,
             trip: result,
-          })
+          });
+
+          loader.load().then(() => {
+            this.map = new google.maps.Map(document.getElementById('map') as HTMLElement, {
+              center: {
+                lat: 36.156900,
+                lng: -95.991500,
+              },
+              zoom: 4,
+              mapTypeId: 'terrain',
+            });
+
+            console.log(result.line);
+            this.map.data.addGeoJson({
+              type: 'Feature',
+              geometry: result.line,
+            });
+
+            this.map.data.setStyle({
+              strokeColor: '#FF3300',
+              strokeWeight: 2,
+            });
+
+            const boundaries = result.boundaries.match(/-?\d+\.\d+/g);
+
+            this.map.fitBounds({
+              west: parseFloat(boundaries[0]),
+              south: parseFloat(boundaries[1]),
+              east: parseFloat(boundaries[2]),
+              north: parseFloat(boundaries[3]),
+            })
+          });
         },
         (error) => {
           console.log(error);
@@ -164,7 +204,7 @@ class TripDetails extends React.Component<PropsType, { isError: boolean, isLoade
           { trip.id && <Typography variant="h2" component="h2" gutterBottom>Details #{trip.id}</Typography> }
           { !trip.id && <Typography variant="h2" component="h2" gutterBottom>Create</Typography> }
           <Card>
-            { trip.line && <StaticMap line={polyline.fromGeoJSON(trip.line)} /> }
+            { trip.line && <div id="map"></div> }
             <CardContent>
               <Box component="form" sx={{ m: [1, 0],
                 '& > :not(style)': { marginBottom: 2, width: '100%' },
@@ -188,6 +228,7 @@ class TripDetails extends React.Component<PropsType, { isError: boolean, isLoade
                     value={end}
                     onChange={n => {this.handleTimeUpdate('end', n)}}
                     />
+                    <Typography variant="caption" component="p"><em>* Device local time</em></Typography>
                 </Box>
               </LocalizationProvider>
             </CardContent>

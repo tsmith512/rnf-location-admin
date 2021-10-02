@@ -7,11 +7,19 @@ import {
 } from '@mui/material';
 
 import React from 'react';
-import { StaticMap } from '../components/StaticMap';
 
 import { timestampToDate } from '../lib/util';
 
+import { Loader } from '@googlemaps/js-api-loader';
+
+const loader = new Loader({
+  apiKey: process.env.REACT_APP_GMAPS_API_KEY || '',
+  version: 'weekly',
+});
+
 class Home extends React.Component<{}, { isError: boolean, isLoaded: boolean, waypoint: any }> {
+  map!: google.maps.Map;
+
   constructor(props: any) {
     super(props);
 
@@ -23,6 +31,17 @@ class Home extends React.Component<{}, { isError: boolean, isLoaded: boolean, wa
   }
 
   componentDidMount() {
+    loader.load().then(() => {
+      this.map = new google.maps.Map(document.getElementById('map') as HTMLElement, {
+        center: {
+          lat: 36.156900,
+          lng: -95.991500,
+        },
+        zoom: 4,
+        mapTypeId: 'terrain',
+      });
+    });
+
     fetch(`${process.env.REACT_APP_API_HOSTNAME}/waypoints`, {
       headers: {
         // @TODO: /waypoint is filtered, but /waypoints isn't for a single item
@@ -37,7 +56,16 @@ class Home extends React.Component<{}, { isError: boolean, isLoaded: boolean, wa
           isLoaded: true,
           isError: false,
           waypoint: result[0],
+        });
+
+        const position = { lat: result[0].lat, lng: result[0].lon };
+        new google.maps.Marker({
+          position: position,
+          map: this.map,
         })
+
+        this.map.setCenter(position);
+        this.map.setZoom(12);
       },
       (error) => {
         console.log(error);
@@ -81,10 +109,7 @@ class Home extends React.Component<{}, { isError: boolean, isLoaded: boolean, wa
           </Grid>
           <Grid item xs={12}>
             <Card>
-              {isLoaded && <StaticMap lat={waypoint.lat} lon={waypoint.lon} marker />}
-              <CardContent>
-                <Typography variant="overline" component="div">Map of {waypoint?.lon}, {waypoint?.lat} </Typography>
-              </CardContent>
+              <div id="map"></div>
             </Card>
           </Grid>
         </Grid>
