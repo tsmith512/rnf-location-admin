@@ -43,14 +43,16 @@ class Home extends React.Component<{}, { isError: boolean, isLoaded: boolean, wa
       });
     });
 
-    fetch(`${process.env.REACT_APP_API_HOSTNAME}/waypoint`, {
+    fetch(`${process.env.REACT_APP_API_HOSTNAME}/waypoints`, {
       headers: {
         'Authorization': 'Basic ' + btoa(`${process.env.REACT_APP_API_USERNAME}:${process.env.REACT_APP_API_PASSWORD}`),
+        'Range': '0-1',
       }
     })
     .then(res => res.json())
     .then(
-      (waypoint) => {
+      (payload) => {
+        const waypoint = payload[0];
         this.setState({
           isLoaded: true,
           isError: false,

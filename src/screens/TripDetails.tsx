@@ -99,7 +99,7 @@ class TripDetails extends React.Component<PropsType, { isError: boolean, isLoade
               south: parseFloat(boundaries[1]),
               east: parseFloat(boundaries[2]),
               north: parseFloat(boundaries[3]),
-            })
+            });
           });
         },
         (error) => {
