@@ -42,23 +42,21 @@ class Home extends React.Component<{}, { isError: boolean, isLoaded: boolean, wa
       });
     });
 
-    fetch(`${process.env.REACT_APP_API_HOSTNAME}/waypoints`, {
+    fetch(`${process.env.REACT_APP_API_HOSTNAME}/waypoint`, {
       headers: {
-        // @TODO: /waypoint is filtered, but /waypoints isn't for a single item
-        'Range': '0-1',
         'Authorization': 'Basic ' + btoa(`${process.env.REACT_APP_API_USERNAME}:${process.env.REACT_APP_API_PASSWORD}`),
       }
     })
     .then(res => res.json())
     .then(
-      (result) => {
+      (waypoint) => {
         this.setState({
           isLoaded: true,
           isError: false,
-          waypoint: result[0],
+          waypoint: waypoint,
         });
 
-        const position = { lat: result[0].lat, lng: result[0].lon };
+        const position = { lat: waypoint.lat, lng: waypoint.lon };
         new google.maps.Marker({
           position: position,
           map: this.map,
