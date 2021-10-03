@@ -11,6 +11,7 @@ import React from 'react';
 import { timestampToDate } from '../lib/util';
 
 import { Loader } from '@googlemaps/js-api-loader';
+import { Link } from 'react-router-dom';
 
 const loader = new Loader({
   apiKey: process.env.REACT_APP_GMAPS_API_KEY || '',
@@ -85,7 +86,7 @@ class Home extends React.Component<{}, { isError: boolean, isLoaded: boolean, wa
         {!isLoaded && <Typography variant="h2" component="h2" gutterBottom>Loading</Typography> }
 
         <Grid container spacing={2}>
-          <Grid item xs={6}>
+          <Grid item xs={12} md={(waypoint?.trips ? 4 : 6)}>
             <Card sx={{ height: '100%' }}>
               <CardContent>
                 <Typography variant="overline" color="text.secondary" gutterBottom>Location</Typography>
@@ -95,7 +96,7 @@ class Home extends React.Component<{}, { isError: boolean, isLoaded: boolean, wa
               </CardContent>
             </Card>
           </Grid>
-          <Grid item xs={6}>
+          <Grid item xs={12} md={(waypoint?.trips ? 4 : 6)}>
             <Card sx={{ height: '100%' }}>
               <CardContent>
                 <Typography variant="overline" color="text.secondary" gutterBottom>Last Reported</Typography>
@@ -105,6 +106,20 @@ class Home extends React.Component<{}, { isError: boolean, isLoaded: boolean, wa
               </CardContent>
             </Card>
           </Grid>
+          {waypoint?.trips?.length &&
+            <Grid item xs={12} md={4}>
+              <Card sx={{ height: '100%' }}>
+                <CardContent>
+                  <Typography variant="overline" color="text.secondary" gutterBottom>Trip(s)</Typography>
+                  <Typography variant="h5" component="div">
+                    {waypoint.trips.map((id: number) => (
+                      <Link to={`/trip/${id}`}>#{id}</Link>
+                    ))}
+                  </Typography>
+                </CardContent>
+              </Card>
+            </Grid>
+          }
           <Grid item xs={12}>
             <Card>
               <div id="map"></div>
