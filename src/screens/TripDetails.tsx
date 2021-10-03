@@ -11,6 +11,7 @@ import {
 
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import SaveIcon from '@mui/icons-material/Save';
+import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
 
 import AdapterDateFns from '@mui/lab/AdapterDayjs';
 import LocalizationProvider from '@mui/lab/LocalizationProvider';
@@ -18,10 +19,14 @@ import LocalizationProvider from '@mui/lab/LocalizationProvider';
 import React from 'react';
 
 import { Link, RouteComponentProps, withRouter } from 'react-router-dom';
-import { StaticMap } from '../components/StaticMap';
 import { DateTimePicker } from '@mui/lab';
 
-var polyline = require('@mapbox/polyline');
+import { Loader } from '@googlemaps/js-api-loader';
+
+const loader = new Loader({
+  apiKey: process.env.REACT_APP_GMAPS_API_KEY || '',
+  version: 'weekly',
+});
 
 // These two nested types made Typescript happy using withRouter & params.
 type PathParamsType = {
@@ -31,6 +36,8 @@ type PathParamsType = {
 type PropsType = RouteComponentProps<PathParamsType>;
 
 class TripDetails extends React.Component<PropsType, { isError: boolean, isLoaded: boolean, isCreate: boolean, trip: any }> {
+  map!: google.maps.Map;
+
   constructor(props: any) {
     super(props);
 
@@ -43,13 +50,18 @@ class TripDetails extends React.Component<PropsType, { isError: boolean, isLoade
 
     this.handleUpdate = this.handleUpdate.bind(this);
     this.saveRecord = this.saveRecord.bind(this);
+    this.deleteRecord = this.deleteRecord.bind(this);
   }
 
   componentDidMount() {
     const id = this.props.match.params.id;
 
     if (id) {
-      fetch(`${process.env.REACT_APP_API_HOSTNAME}/trip/${id}`)
+      fetch(`${process.env.REACT_APP_API_HOSTNAME}/trip/${id}`, {
+        headers: {
+          'Authorization': 'Basic ' + btoa(`${process.env.REACT_APP_API_USERNAME}:${process.env.REACT_APP_API_PASSWORD}`),
+        },
+      })
       .then(res => res.json())
       .then(
         (result) => {
@@ -58,7 +70,37 @@ class TripDetails extends React.Component<PropsType, { isError: boolean, isLoade
             isError: false,
             isCreate: false,
             trip: result,
-          })
+          });
+
+          loader.load().then(() => {
+            this.map = new google.maps.Map(document.getElementById('map') as HTMLElement, {
+              center: {
+                lat: 36.156900,
+                lng: -95.991500,
+              },
+              zoom: 4,
+              mapTypeId: 'terrain',
+            });
+
+            this.map.data.addGeoJson({
+              type: 'Feature',
+              geometry: result.line,
+            });
+
+            this.map.data.setStyle({
+              strokeColor: '#FF3300',
+              strokeWeight: 2,
+            });
+
+            const boundaries = result.boundaries.match(/-?\d+\.\d+/g);
+
+            this.map.fitBounds({
+              west: parseFloat(boundaries[0]),
+              south: parseFloat(boundaries[1]),
+              east: parseFloat(boundaries[2]),
+              north: parseFloat(boundaries[3]),
+            });
+          });
         },
         (error) => {
           console.log(error);
@@ -127,6 +169,38 @@ class TripDetails extends React.Component<PropsType, { isError: boolean, isLoade
     );
   }
 
+  deleteRecord(): void {
+    if (window.confirm('Delete this trip?')) {
+      fetch(`${process.env.REACT_APP_API_HOSTNAME}/trip/${this.state.trip.id}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': 'Basic ' + btoa(`${process.env.REACT_APP_API_USERNAME}:${process.env.REACT_APP_API_PASSWORD}`),
+        },
+      })
+      .then(
+        (response) => {
+          if (response.ok) {
+            alert('Deleted');
+            this.props.history.push(`/trips`);
+          } else {
+            // @TODO: Render these in the body area
+            console.log(response);
+
+            // Start over
+            this.componentDidMount();
+          }
+        },
+        (error) => {
+          // @TODO: Render these in the body area
+          console.log(error);
+
+          // Start over
+          this.componentDidMount();
+        }
+      );
+    }
+  }
+
   handleUpdate(e: any): void {
     const trip = Object.assign({}, this.state.trip);
     trip[e.target.name] = e.target.value;
@@ -164,7 +238,7 @@ class TripDetails extends React.Component<PropsType, { isError: boolean, isLoade
           { trip.id && <Typography variant="h2" component="h2" gutterBottom>Details #{trip.id}</Typography> }
           { !trip.id && <Typography variant="h2" component="h2" gutterBottom>Create</Typography> }
           <Card>
-            { trip.line && <StaticMap line={polyline.fromGeoJSON(trip.line)} /> }
+            { trip.line && <div id="map"></div> }
             <CardContent>
               <Box component="form" sx={{ m: [1, 0],
                 '& > :not(style)': { marginBottom: 2, width: '100%' },
@@ -188,12 +262,16 @@ class TripDetails extends React.Component<PropsType, { isError: boolean, isLoade
                     value={end}
                     onChange={n => {this.handleTimeUpdate('end', n)}}
                     />
+                    <Typography variant="caption" component="p"><em>* Device local time</em></Typography>
                 </Box>
               </LocalizationProvider>
             </CardContent>
             <CardActions disableSpacing>
               <IconButton aria-label="save" onClick={this.saveRecord}>
                 <SaveIcon />
+              </IconButton>
+              <IconButton aria-label="delete" onClick={this.deleteRecord}>
+                <DeleteForeverIcon />
               </IconButton>
             </CardActions>
           </Card>
