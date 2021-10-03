@@ -28,8 +28,6 @@ const loader = new Loader({
   version: 'weekly',
 });
 
-var polyline = require('@mapbox/polyline');
-
 // These two nested types made Typescript happy using withRouter & params.
 type PathParamsType = {
   id: string,
