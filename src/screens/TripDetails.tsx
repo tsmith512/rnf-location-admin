@@ -11,6 +11,7 @@ import {
 
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import SaveIcon from '@mui/icons-material/Save';
+import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
 
 import AdapterDateFns from '@mui/lab/AdapterDayjs';
 import LocalizationProvider from '@mui/lab/LocalizationProvider';
@@ -21,7 +22,6 @@ import { Link, RouteComponentProps, withRouter } from 'react-router-dom';
 import { DateTimePicker } from '@mui/lab';
 
 import { Loader } from '@googlemaps/js-api-loader';
-import { isConstructorDeclaration } from 'typescript';
 
 const loader = new Loader({
   apiKey: process.env.REACT_APP_GMAPS_API_KEY || '',
@@ -52,13 +52,18 @@ class TripDetails extends React.Component<PropsType, { isError: boolean, isLoade
 
     this.handleUpdate = this.handleUpdate.bind(this);
     this.saveRecord = this.saveRecord.bind(this);
+    this.deleteRecord = this.deleteRecord.bind(this);
   }
 
   componentDidMount() {
     const id = this.props.match.params.id;
 
     if (id) {
-      fetch(`${process.env.REACT_APP_API_HOSTNAME}/trip/${id}`)
+      fetch(`${process.env.REACT_APP_API_HOSTNAME}/trip/${id}`, {
+        headers: {
+          'Authorization': 'Basic ' + btoa(`${process.env.REACT_APP_API_USERNAME}:${process.env.REACT_APP_API_PASSWORD}`),
+        },
+      })
       .then(res => res.json())
       .then(
         (result) => {
@@ -79,7 +84,6 @@ class TripDetails extends React.Component<PropsType, { isError: boolean, isLoade
               mapTypeId: 'terrain',
             });
 
-            console.log(result.line);
             this.map.data.addGeoJson({
               type: 'Feature',
               geometry: result.line,
@@ -167,6 +171,38 @@ class TripDetails extends React.Component<PropsType, { isError: boolean, isLoade
     );
   }
 
+  deleteRecord(): void {
+    if (window.confirm('Delete this trip?')) {
+      fetch(`${process.env.REACT_APP_API_HOSTNAME}/trip/${this.state.trip.id}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': 'Basic ' + btoa(`${process.env.REACT_APP_API_USERNAME}:${process.env.REACT_APP_API_PASSWORD}`),
+        },
+      })
+      .then(
+        (response) => {
+          if (response.ok) {
+            alert('Deleted');
+            this.props.history.push(`/trips`);
+          } else {
+            // @TODO: Render these in the body area
+            console.log(response);
+
+            // Start over
+            this.componentDidMount();
+          }
+        },
+        (error) => {
+          // @TODO: Render these in the body area
+          console.log(error);
+
+          // Start over
+          this.componentDidMount();
+        }
+      );
+    }
+  }
+
   handleUpdate(e: any): void {
     const trip = Object.assign({}, this.state.trip);
     trip[e.target.name] = e.target.value;
@@ -235,6 +271,9 @@ class TripDetails extends React.Component<PropsType, { isError: boolean, isLoade
             <CardActions disableSpacing>
               <IconButton aria-label="save" onClick={this.saveRecord}>
                 <SaveIcon />
+              </IconButton>
+              <IconButton aria-label="delete" onClick={this.deleteRecord}>
+                <DeleteForeverIcon />
               </IconButton>
             </CardActions>
           </Card>

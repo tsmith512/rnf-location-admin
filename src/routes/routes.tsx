@@ -1,20 +1,27 @@
-import { Home, Trips, TripDetails } from '../screens';
+import { Home, Trips, TripDetails, TripMaps } from '../screens';
 
-import HomeIcon from '@mui/icons-material/Home';
+import ExploreIcon from '@mui/icons-material/Explore';
+import FolderIcon from '@mui/icons-material/Folder';
 import MapIcon from '@mui/icons-material/Map';
 
 const Routes = [
   {
     path: '/',
     title: 'Home',
-    icon: HomeIcon,
+    icon: ExploreIcon,
     screen: Home,
   },
   {
     path: '/trips',
     title: 'Trips',
-    icon: MapIcon,
+    icon: FolderIcon,
     screen: Trips,
+  },
+  {
+    path: '/maps',
+    title: 'Trip Maps',
+    icon: MapIcon,
+    screen: TripMaps,
   },
   {
     path: '/trip/:id',
