@@ -1,4 +1,18 @@
-import { Container, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TablePagination, TableRow, Typography } from '@mui/material';
+import {
+  Container,
+  IconButton,
+  Paper,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TablePagination,
+  TableRow,
+  Typography,
+} from '@mui/material';
+
+import EditLocationIcon from '@mui/icons-material/EditLocation';
 import React from 'react';
 
 class Waypoints extends React.Component<{}, { isError: boolean, isLoaded: boolean, start: number, page: number, rowsPerPage: number, waypoints: Array<any> }> {
@@ -20,7 +34,7 @@ class Waypoints extends React.Component<{}, { isError: boolean, isLoaded: boolea
   }
 
   componentDidMount() {
-
+    this.getWaypoints();
   }
 
   handleChangePage(e: React.MouseEvent<HTMLButtonElement> | null, input: number) {
@@ -50,7 +64,10 @@ class Waypoints extends React.Component<{}, { isError: boolean, isLoaded: boolea
     .then(res => res.json())
     .then(
       (payload) => {
-        this.setState({ waypoints: payload });
+        this.setState({
+          waypoints: payload,
+          isLoaded: true,
+        });
       },
       (error) => {
         console.log(error);
@@ -75,19 +92,19 @@ class Waypoints extends React.Component<{}, { isError: boolean, isLoaded: boolea
                 <TableCell>Location</TableCell>
                 <TableCell>Label</TableCell>
                 <TableCell>State</TableCell>
-                <TableCell>Geocode Attempts</TableCell>
+                <TableCell>Details</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
               {waypoints.map((waypoint: any) => {
                 const date = new Date(waypoint.timestamp * 1000)
                 return (
-                  <TableRow key={waypoint.timestamp}>
+                  <TableRow key={waypoint.timestamp} hover={true}>
                     <TableCell>{date.toLocaleTimeString()}<br />{date.toDateString()}</TableCell>
                     <TableCell>{waypoint.lon}, {waypoint.lat}</TableCell>
                     <TableCell>{waypoint.label}</TableCell>
                     <TableCell>{waypoint.state}<br />{waypoint.country}</TableCell>
-                    <TableCell>{waypoint.geocode_attempts}</TableCell>
+                    <TableCell><IconButton aria-label="details" ><EditLocationIcon></EditLocationIcon></IconButton></TableCell>
                   </TableRow>
                 )
               })}
@@ -95,7 +112,8 @@ class Waypoints extends React.Component<{}, { isError: boolean, isLoaded: boolea
           </Table>
           <TablePagination
             component="div"
-            count={100}
+            /* @TODO: Can we get a quick count of all? This is dumb. */
+            count={10000000}
             page={page}
             onPageChange={this.handleChangePage}
             rowsPerPage={rowsPerPage}
