@@ -1,6 +1,10 @@
 import {
+  Box,
+  Card,
+  CardContent,
   Container,
   IconButton,
+  Modal,
   Paper,
   Table,
   TableBody,
@@ -15,7 +19,17 @@ import {
 import EditLocationIcon from '@mui/icons-material/EditLocation';
 import React from 'react';
 
-class Waypoints extends React.Component<{}, { isError: boolean, isLoaded: boolean, start: number, page: number, rowsPerPage: number, waypoints: Array<any> }> {
+class Waypoints extends React.Component<{}, {
+  isError: boolean,
+  isLoaded: boolean,
+  start: number,
+  page: number,
+  rowsPerPage: number,
+  detailsOpen: boolean,
+  detailsWaypoint: any, /* @TODO: Define a Waypoint type */
+  waypoints: Array<any>
+}> {
+
   constructor(props: any) {
     super(props);
 
@@ -25,11 +39,15 @@ class Waypoints extends React.Component<{}, { isError: boolean, isLoaded: boolea
       start: 0,
       page: 0,
       rowsPerPage: 50,
+      detailsOpen: false,
+      detailsWaypoint: null,
       waypoints: [],
     };
 
     this.handleChageRowsPerPage = this.handleChageRowsPerPage.bind(this);
     this.handleChangePage = this.handleChangePage.bind(this);
+    this.handleDetailsOpen = this.handleDetailsOpen.bind(this);
+    this.handleDetailsClose = this.handleDetailsClose.bind(this);
     this.getWaypoints = this.getWaypoints.bind(this);
   }
 
@@ -47,6 +65,29 @@ class Waypoints extends React.Component<{}, { isError: boolean, isLoaded: boolea
     this.setState({
       rowsPerPage: parseInt(e.target.value),
     }, this.getWaypoints);
+  }
+
+  handleDetailsOpen(waypoint: any) {
+    this.setState({
+      detailsOpen: true,
+      detailsWaypoint: waypoint,
+    });
+  }
+
+  handleDetailsClose() {
+    this.setState({
+      detailsOpen: false,
+      detailsWaypoint: null,
+    });
+  }
+
+  modalStyle = {
+    position: 'absolute' as 'absolute',
+    top: '50%',
+    left: '50%',
+    transform: 'translate(-50%, -50%)',
+    minWidth: 400,
+    boxShadow: 24,
   }
 
   async getWaypoints() {
@@ -77,7 +118,14 @@ class Waypoints extends React.Component<{}, { isError: boolean, isLoaded: boolea
   }
 
   render() {
-    const { isLoaded, page, rowsPerPage, waypoints } = this.state;
+    const {
+      isLoaded,
+      page,
+      rowsPerPage,
+      waypoints,
+      detailsOpen,
+      detailsWaypoint,
+    } = this.state;
 
     return (
       <Container maxWidth="md">
@@ -104,7 +152,7 @@ class Waypoints extends React.Component<{}, { isError: boolean, isLoaded: boolea
                     <TableCell>{waypoint.lon}, {waypoint.lat}</TableCell>
                     <TableCell>{waypoint.label}</TableCell>
                     <TableCell>{waypoint.state}<br />{waypoint.country}</TableCell>
-                    <TableCell><IconButton aria-label="details" ><EditLocationIcon></EditLocationIcon></IconButton></TableCell>
+                    <TableCell><IconButton aria-label="details" onClick={() => {this.handleDetailsOpen(waypoint)}}><EditLocationIcon></EditLocationIcon></IconButton></TableCell>
                   </TableRow>
                 )
               })}
@@ -119,6 +167,22 @@ class Waypoints extends React.Component<{}, { isError: boolean, isLoaded: boolea
             rowsPerPage={rowsPerPage}
             onRowsPerPageChange={this.handleChageRowsPerPage} />
         </TableContainer>
+
+        <Modal
+          open={detailsOpen}
+          onClose={this.handleDetailsClose}
+        >
+          <Box sx={this.modalStyle}>
+            <Card>
+              <CardContent>
+                <Typography variant="h6" component="h2">Details</Typography>
+                <pre>
+                  {JSON.stringify(detailsWaypoint, null, 2)}
+                </pre>
+              </CardContent>
+            </Card>
+          </Box>
+        </Modal>
       </Container>
     )
   }
