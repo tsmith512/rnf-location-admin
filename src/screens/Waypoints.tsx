@@ -19,6 +19,12 @@ import {
 import EditLocationIcon from '@mui/icons-material/EditLocation';
 import React from 'react';
 
+import { Loader } from '@googlemaps/js-api-loader';
+const loader = new Loader({
+  apiKey: process.env.REACT_APP_GMAPS_API_KEY || '',
+  version: 'weekly',
+});
+
 class Waypoints extends React.Component<{}, {
   isError: boolean,
   isLoaded: boolean,
@@ -27,8 +33,10 @@ class Waypoints extends React.Component<{}, {
   rowsPerPage: number,
   detailsOpen: boolean,
   detailsWaypoint: any, /* @TODO: Define a Waypoint type */
-  waypoints: Array<any>
+  waypoints: Array<any>,
 }> {
+  map!: google.maps.Map;
+
 
   constructor(props: any) {
     super(props);
@@ -53,6 +61,7 @@ class Waypoints extends React.Component<{}, {
 
   componentDidMount() {
     this.getWaypoints();
+    loader.load();
   }
 
   handleChangePage(e: React.MouseEvent<HTMLButtonElement> | null, input: number) {
@@ -71,6 +80,26 @@ class Waypoints extends React.Component<{}, {
     this.setState({
       detailsOpen: true,
       detailsWaypoint: waypoint,
+    }, () => {
+      /* @TODO: This is obviously shitty. #map doesn't exist until the modal is
+         opened and re-rendered. Just putting this in a setState() callback was
+         not long enough... */
+         setTimeout(() => {
+          const position = {
+            lat: this.state.detailsWaypoint.lat,
+            lng: this.state.detailsWaypoint.lon,
+          };
+          this.map = new google.maps.Map(document.getElementById('map') as HTMLElement, {
+            center: position,
+            zoom: 8,
+            mapTypeId: 'terrain',
+          });
+
+          new google.maps.Marker({
+            position: position,
+            map: this.map,
+          });
+        }, 500);
     });
   }
 
@@ -174,6 +203,7 @@ class Waypoints extends React.Component<{}, {
         >
           <Box sx={this.modalStyle}>
             <Card>
+              <div id="map"></div>
               <CardContent>
                 <Typography variant="h6" component="h2">Details</Typography>
                 <pre>
