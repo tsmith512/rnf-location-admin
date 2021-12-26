@@ -95,6 +95,9 @@ class Home extends React.Component<{}, { isError: boolean, isLoaded: boolean, wa
                 <Typography variant="h5" component="div">
                   {waypoint?.label}
                 </Typography>
+                <Typography variant="caption" component="div">
+                  {waypoint?.lon}, {waypoint?.lat}
+                </Typography>
               </CardContent>
             </Card>
           </Grid>
