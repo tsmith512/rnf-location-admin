@@ -252,15 +252,15 @@ class TripDetails extends React.Component<PropsType, { isError: boolean, isLoade
                 <Box sx={{ m: [1, 0],
                   '& > :not(style)': { marginBottom: 2, width: '100%' },
                 }}>
-                  <DateTimePicker renderInput={(props) => <TextField {...props} />}
+                  <DateTimePicker renderInput={(props: any) => <TextField {...props} />}
                     label="Start"
                     value={start}
-                    onChange={n => {this.handleTimeUpdate('start', n)}}
+                    onChange={(n: any) => {this.handleTimeUpdate('start', n)}}
                     />
-                  <DateTimePicker renderInput={(props) => <TextField {...props} />}
+                  <DateTimePicker renderInput={(props: any) => <TextField {...props} />}
                     label="End"
                     value={end}
-                    onChange={n => {this.handleTimeUpdate('end', n)}}
+                    onChange={(n: any) => {this.handleTimeUpdate('end', n)}}
                     />
                     <Typography variant="caption" component="p"><em>* Device local time</em></Typography>
                 </Box>
