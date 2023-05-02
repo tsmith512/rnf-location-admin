@@ -13,13 +13,15 @@ import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import SaveIcon from '@mui/icons-material/Save';
 import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
 
-import AdapterDateFns from '@mui/lab/AdapterDayjs';
-import LocalizationProvider from '@mui/lab/LocalizationProvider';
-
 import React from 'react';
 
 import { Link, RouteComponentProps, withRouter } from 'react-router-dom';
-import { DateTimePicker } from '@mui/lab';
+import { DateTimePicker, LocalizationProvider } from '@mui/x-date-pickers';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import dayjs from 'dayjs';
+import 'dayjs/locale/en';
+import timezone from 'dayjs/plugin/timezone';
+import utc from 'dayjs/plugin/utc';
 
 import { Loader } from '@googlemaps/js-api-loader';
 
@@ -51,6 +53,9 @@ class TripDetails extends React.Component<PropsType, { isError: boolean, isLoade
     this.handleUpdate = this.handleUpdate.bind(this);
     this.saveRecord = this.saveRecord.bind(this);
     this.deleteRecord = this.deleteRecord.bind(this);
+
+    dayjs.extend(utc);
+    dayjs.extend(timezone);
   }
 
   componentDidMount() {
@@ -227,8 +232,8 @@ class TripDetails extends React.Component<PropsType, { isError: boolean, isLoade
     const { isLoaded, trip } = this.state;
 
     if (isLoaded) {
-      const start = trip.start ? new Date(trip.start * 1000) : new Date();
-      const end = trip.start ? new Date(trip.end * 1000) : new Date();
+      const start = trip.start ? dayjs.unix(trip.start).local() : dayjs();
+      const end = trip.start ? dayjs.unix(trip.end).local() : dayjs();
 
       return (
         <Container maxWidth="md">
@@ -248,16 +253,16 @@ class TripDetails extends React.Component<PropsType, { isError: boolean, isLoade
                 <TextField defaultValue={trip.slug} label="Slug" name="slug" variant="outlined" onChange={this.handleUpdate} />
                 <TextField defaultValue={trip.label} label="Label" name="label" variant="outlined" onChange={this.handleUpdate} />
               </Box>
-              <LocalizationProvider dateAdapter={AdapterDateFns}>
+              <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="en">
                 <Box sx={{ m: [1, 0],
                   '& > :not(style)': { marginBottom: 2, width: '100%' },
                 }}>
-                  <DateTimePicker renderInput={(props: any) => <TextField {...props} />}
+                  <DateTimePicker
                     label="Start"
                     value={start}
                     onChange={(n: any) => {this.handleTimeUpdate('start', n)}}
                     />
-                  <DateTimePicker renderInput={(props: any) => <TextField {...props} />}
+                  <DateTimePicker
                     label="End"
                     value={end}
                     onChange={(n: any) => {this.handleTimeUpdate('end', n)}}
