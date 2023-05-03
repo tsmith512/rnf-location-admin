@@ -15,7 +15,7 @@ import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
 
 import React, { useCallback, useEffect, useState } from 'react';
 
-import { Link, useParams } from 'react-router-dom';
+import { Link, useHistory, useParams } from 'react-router-dom';
 import { DateTimePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import dayjs, { Dayjs } from 'dayjs';
@@ -44,11 +44,6 @@ const blankTrip: TripProps = {
   end: Math.floor(Date.now() / 1000),
 };
 
-// These two nested types made Typescript happy using withRouter & params.
-type PathParamsType = {
-  id: string,
-}
-
 export default function TripDetailsV2() {
   const { id } = useParams() as any;
 
@@ -56,6 +51,8 @@ export default function TripDetailsV2() {
     id: 'google-map-script',
     googleMapsApiKey: process.env.REACT_APP_GMAPS_API_KEY || '',
   });
+
+  const history = useHistory();
 
   const [isError, setError] = useState(null as boolean | null);
   const [isLoaded, setLoaded] = useState(false as boolean);
@@ -133,8 +130,64 @@ export default function TripDetailsV2() {
     setMap(null);
   }, []);
 
-  // saveRecord() -- save or create a trip
-  // deleteRecord() -- delete a trip
+  const saveRecord = (): void => {
+    fetch(`${process.env.REACT_APP_API_HOSTNAME}/trip`, {
+      method: 'POST',
+      headers: {
+        'Authorization': 'Basic ' + btoa(`${process.env.REACT_APP_API_USERNAME}:${process.env.REACT_APP_API_PASSWORD}`),
+      },
+      body: JSON.stringify(trip),
+    })
+    .then(res => res.json())
+    .then(
+      (result) => {
+        // @TODO: Check if 201 and throw a toast.
+        alert('Saved');
+
+        if (result.id !== id) {
+          // Most likely case is that a trip was created.
+          history.replace(`/trip/${result.id}`)
+        }
+
+        // Rerun the initial fetch. The upsert hits a table, not the view that
+        // assembles the GeoJSON line and boundaries box.
+        setTrip(result);
+      },
+      (error) => {
+        // @TODO: Render these in the body area
+        console.log(error);
+        setLoaded(false);
+        setError(true);
+        setTrip(Object.assign({}, blankTrip));
+      }
+    );
+  }
+
+  const deleteRecord = (): void => {
+    if (window.confirm('Delete this trip?')) {
+      fetch(`${process.env.REACT_APP_API_HOSTNAME}/trip/${id}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': 'Basic ' + btoa(`${process.env.REACT_APP_API_USERNAME}:${process.env.REACT_APP_API_PASSWORD}`),
+        },
+      })
+      .then(
+        (response) => {
+          if (response.ok) {
+            alert('Deleted');
+            history.push('/trips');
+          } else {
+            // @TODO: Render these in the body area
+            console.log(response);
+          }
+        },
+        (error) => {
+          // @TODO: Render these in the body area
+          console.log(error);
+        }
+      );
+    }
+  }
 
   const handleSimpleUpdate = (e: any): void => {
     const newTrip = Object.assign({}, trip) as TripProps;
@@ -201,10 +254,10 @@ export default function TripDetailsV2() {
             </LocalizationProvider>
           </CardContent>
           <CardActions disableSpacing>
-            <IconButton aria-label="save">
+            <IconButton aria-label="save" onClick={saveRecord}>
               <SaveIcon />
             </IconButton>
-            <IconButton aria-label="delete">
+            <IconButton aria-label="delete" onClick={deleteRecord}>
               <DeleteForeverIcon />
             </IconButton>
           </CardActions>
