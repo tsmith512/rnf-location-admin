@@ -1,4 +1,4 @@
-import { Home, Trips, TripDetails, TripMaps, Waypoints } from '../screens';
+import { Home, Trips, TripDetailsV2, TripMaps, Waypoints } from '../screens';
 
 import ExploreIcon from '@mui/icons-material/Explore';
 import FolderIcon from '@mui/icons-material/Folder';
@@ -21,7 +21,7 @@ const Routes = [
   {
     path: '/trip/:id',
     title: 'Trip ID',
-    screen: TripDetails,
+    screen: TripDetailsV2,
   },
   {
     path: '/maps',

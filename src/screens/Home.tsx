@@ -10,13 +10,7 @@ import React from 'react';
 
 import { timestampToDate } from '../lib/util';
 
-import { Loader } from '@googlemaps/js-api-loader';
 import { Link } from 'react-router-dom';
-
-const loader = new Loader({
-  apiKey: process.env.REACT_APP_GMAPS_API_KEY || '',
-  version: 'weekly',
-});
 
 class Home extends React.Component<{}, { isError: boolean, isLoaded: boolean, waypoint: any }> {
   map!: google.maps.Map;
@@ -32,17 +26,6 @@ class Home extends React.Component<{}, { isError: boolean, isLoaded: boolean, wa
   }
 
   componentDidMount() {
-    loader.load().then(() => {
-      this.map = new google.maps.Map(document.getElementById('map') as HTMLElement, {
-        center: {
-          lat: 36.156900,
-          lng: -95.991500,
-        },
-        zoom: 4,
-        mapTypeId: 'terrain',
-      });
-    });
-
     fetch(`${process.env.REACT_APP_API_HOSTNAME}/waypoints`, {
       headers: {
         'Authorization': 'Basic ' + btoa(`${process.env.REACT_APP_API_USERNAME}:${process.env.REACT_APP_API_PASSWORD}`),
@@ -60,13 +43,6 @@ class Home extends React.Component<{}, { isError: boolean, isLoaded: boolean, wa
         });
 
         const position = { lat: waypoint.lat, lng: waypoint.lon };
-        new google.maps.Marker({
-          position: position,
-          map: this.map,
-        })
-
-        this.map.setCenter(position);
-        this.map.setZoom(12);
       },
       (error) => {
         console.log(error);

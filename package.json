@@ -5,11 +5,11 @@
   "dependencies": {
     "@emotion/react": "^11.10",
     "@emotion/styled": "^11.10",
-    "@googlemaps/js-api-loader": "^1.15.1",
     "@mui/icons-material": "^5",
     "@mui/lab": "^5.0.0-alpha.128",
     "@mui/material": "^5.12",
     "@mui/x-date-pickers": "^6.3.0",
+    "@react-google-maps/api": "^2.18.1",
     "@testing-library/jest-dom": "^5.14.1",
     "@types/mapbox__polyline": "^1.0.2",
     "@types/node": "^16",
