@@ -18,7 +18,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { DateTimePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-import dayjs from 'dayjs';
+import dayjs, { Dayjs } from 'dayjs';
 import 'dayjs/locale/en';
 import timezone from 'dayjs/plugin/timezone';
 import utc from 'dayjs/plugin/utc';
@@ -136,8 +136,22 @@ export default function TripDetailsV2() {
   // saveRecord() -- save or create a trip
   // deleteRecord() -- delete a trip
 
-  // handleUpdate() -- update trip object in state based on form field changes
-  // handleTimeUpdate() -- same, but for the DateTimePicker fields
+  const handleSimpleUpdate = (e: any): void => {
+    const newTrip = Object.assign({}, trip) as TripProps;
+    const attribute = e.target.name as keyof typeof newTrip;
+    /* @ts-ignore */
+    newTrip[attribute] = e.target.value;
+    setTrip(newTrip);
+  }
+
+  const handleTimeUpdate = (type: 'start' | 'end', val: Dayjs | null): void => {
+    const newTrip = Object.assign({}, trip) as TripProps;
+
+    if (val) {
+      newTrip[type] = val.unix();
+      setTrip(newTrip);
+    }
+  }
 
   return (
     <Container maxWidth="md">
@@ -165,8 +179,8 @@ export default function TripDetailsV2() {
             }}
             noValidate
             autoComplete="off">
-              <TextField value={trip.slug} label="Slug" name="slug" variant="outlined" />
-              <TextField value={trip.label} label="Label" name="label" variant="outlined" />
+              <TextField value={trip.slug} label="Slug" name="slug" variant="outlined" onChange={handleSimpleUpdate} />
+              <TextField value={trip.label} label="Label" name="label" variant="outlined" onChange={handleSimpleUpdate} />
             </Box>
             <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="en">
               <Box sx={{ m: [1, 0],
@@ -175,12 +189,12 @@ export default function TripDetailsV2() {
                 <DateTimePicker
                   label="Start"
                   value={trip.start ? dayjs.unix(trip.start).local() : dayjs()}
-                  onChange={(n: any) => {}}
+                  onChange={(n: Dayjs | null) => {handleTimeUpdate('start', n)}}
                   />
                 <DateTimePicker
                   label="End"
                   value={trip.start ? dayjs.unix(trip.end).local() : dayjs()}
-                  onChange={(n: any) => {}}
+                  onChange={(n: Dayjs | null) => {handleTimeUpdate('end', n)}}
                   />
                   <Typography variant="caption" component="p"><em>* Device local time</em></Typography>
               </Box>
