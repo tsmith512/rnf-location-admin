@@ -96,7 +96,6 @@ export default function TripDetailsV2() {
   }, [id]);
 
   const mapOnLoad = useCallback((map) => {
-    console.log(trip);
     if (trip.boundaries) {
       const boundaries = trip.boundaries.match(/-?\d+\.\d+/g);
       map.fitBounds({
