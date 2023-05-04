@@ -54,13 +54,12 @@ export default function TripDetailsV2() {
 
   const history = useHistory();
 
-  const [isError, setError] = useState(null as boolean | null);
+  const [isError, setError] = useState(false as boolean);
   const [isLoaded, setLoaded] = useState(false as boolean);
   const [isCreate, setCreate] = useState(false as boolean);
   // @TODO: Trip is a type in rnf-location-service, use it here?
   const [trip, setTrip] = useState(Object.assign({}, blankTrip) as TripProps);
   const [map, setMap] = React.useState(null);
-
 
   dayjs.extend(utc);
   dayjs.extend(timezone);
@@ -211,57 +210,56 @@ export default function TripDetailsV2() {
         <ArrowBackIcon />
       </IconButton>
 
-      { trip.id && <Typography variant="h2" component="h2" gutterBottom>Details #{trip.id}</Typography> }
-      { !trip.id && <Typography variant="h2" component="h2" gutterBottom>Create</Typography> }
+      { isLoaded && trip.id && <Typography variant="h2" component="h2" gutterBottom>Details #{trip.id}</Typography> }
+      { isCreate && <Typography variant="h2" component="h2" gutterBottom>Create</Typography> }
+      { isError && <Typography variant="h2" component="h2" gutterBottom>Error...</Typography> }
 
-      { isLoaded && (
-        <Card>
-          { trip.line && mapsLoader.isLoaded && <GoogleMap
-            mapContainerStyle={{
-              width: '100%',
-              height: '400px',
-            }}
-            onLoad={mapOnLoad}
-            onUnmount={mapOnUnload}
-            mapTypeId='terrain'
-          /> }
-          <CardContent>
-            <Box component="form" sx={{ m: [1, 0],
+      <Card>
+        { isLoaded && mapsLoader.isLoaded && trip.line && <GoogleMap
+          mapContainerStyle={{
+            width: '100%',
+            height: '400px',
+          }}
+          onLoad={mapOnLoad}
+          onUnmount={mapOnUnload}
+          mapTypeId='terrain'
+        /> }
+        <CardContent>
+          <Box component="form" sx={{ m: [1, 0],
+            '& > :not(style)': { marginBottom: 2, width: '100%' },
+          }}
+          noValidate
+          autoComplete="off">
+            <TextField value={trip.slug} label="Slug" name="slug" variant="outlined" onChange={handleSimpleUpdate} />
+            <TextField value={trip.label} label="Label" name="label" variant="outlined" onChange={handleSimpleUpdate} />
+          </Box>
+          <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="en">
+            <Box sx={{ m: [1, 0],
               '& > :not(style)': { marginBottom: 2, width: '100%' },
-            }}
-            noValidate
-            autoComplete="off">
-              <TextField value={trip.slug} label="Slug" name="slug" variant="outlined" onChange={handleSimpleUpdate} />
-              <TextField value={trip.label} label="Label" name="label" variant="outlined" onChange={handleSimpleUpdate} />
+            }}>
+              <DateTimePicker
+                label="Start"
+                value={trip.start ? dayjs.unix(trip.start).local() : dayjs()}
+                onChange={(n: Dayjs | null) => {handleTimeUpdate('start', n)}}
+                />
+              <DateTimePicker
+                label="End"
+                value={trip.start ? dayjs.unix(trip.end).local() : dayjs()}
+                onChange={(n: Dayjs | null) => {handleTimeUpdate('end', n)}}
+                />
+                <Typography variant="caption" component="p"><em>* Device local time</em></Typography>
             </Box>
-            <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="en">
-              <Box sx={{ m: [1, 0],
-                '& > :not(style)': { marginBottom: 2, width: '100%' },
-              }}>
-                <DateTimePicker
-                  label="Start"
-                  value={trip.start ? dayjs.unix(trip.start).local() : dayjs()}
-                  onChange={(n: Dayjs | null) => {handleTimeUpdate('start', n)}}
-                  />
-                <DateTimePicker
-                  label="End"
-                  value={trip.start ? dayjs.unix(trip.end).local() : dayjs()}
-                  onChange={(n: Dayjs | null) => {handleTimeUpdate('end', n)}}
-                  />
-                  <Typography variant="caption" component="p"><em>* Device local time</em></Typography>
-              </Box>
-            </LocalizationProvider>
-          </CardContent>
-          <CardActions disableSpacing>
-            <IconButton aria-label="save" onClick={saveRecord}>
-              <SaveIcon />
-            </IconButton>
-            <IconButton aria-label="delete" onClick={deleteRecord}>
-              <DeleteForeverIcon />
-            </IconButton>
-          </CardActions>
-        </Card>
-      ) }
+          </LocalizationProvider>
+        </CardContent>
+        <CardActions disableSpacing>
+          <IconButton aria-label="save" onClick={saveRecord}>
+            <SaveIcon />
+          </IconButton>
+          <IconButton aria-label="delete" onClick={deleteRecord}>
+            <DeleteForeverIcon />
+          </IconButton>
+        </CardActions>
+      </Card>
     </Container>
   );
 }
