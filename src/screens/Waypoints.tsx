@@ -1,5 +1,8 @@
 import {
+  Alert,
+  AlertTitle,
   Box,
+  Button,
   Card,
   CardContent,
   Container,
@@ -27,13 +30,33 @@ export default function Waypoints() {
   const [page, setPage] = useState(0 as number);
   const [rowsPerPage, setRowsPerPage] = useState(50 as number);
   const [detailsOpen, setDetailsOpen] = useState(false as boolean);
+  const [pendingCount, setPendingCount] = useState(0 as number);
   /* @TODO: Define a Waypoint type */
   const [detailsWaypoint, setDetailsWaypoint] = useState(null as any);
   const [waypoints, setWaypoints] = useState([] as any[]);
+  const [reload, setReload] = useState(0 as number);
 
   useEffect(() => {
     getWaypoints();
-  }, [page, rowsPerPage]);
+  }, [page, rowsPerPage, reload]);
+
+  useEffect(() => {
+    fetch(`${process.env.REACT_APP_API_HOSTNAME}/waypoints/pending`, {
+      headers: {
+        'Authorization': 'Basic ' + btoa(`${process.env.REACT_APP_API_USERNAME}:${process.env.REACT_APP_API_PASSWORD}`),
+      }
+    })
+    .then(res => res.json())
+    .then(
+      (count) => {
+        setPendingCount(count);
+      },
+      (error) => {
+        console.log(error);
+        setPendingCount(0);
+      }
+    );
+  }, [reload]);
 
   const handleChangePage = (e: React.MouseEvent<HTMLButtonElement> | null, input: number) => {
     setPage(input);
@@ -86,10 +109,45 @@ export default function Waypoints() {
     );
   }
 
+  const handlePending = async () => {
+    await fetch(`${process.env.REACT_APP_API_HOSTNAME}/waypoints/pending/process`, {
+      headers: {
+        'Authorization': 'Basic ' + btoa(`${process.env.REACT_APP_API_USERNAME}:${process.env.REACT_APP_API_PASSWORD}`),
+      }
+    })
+    .then(res => res.json())
+    .then(
+      (payload) => {
+        console.log(payload);
+        if (payload?.message) {
+          alert(payload.message);
+        }
+         setReload(reload + 1);
+      },
+      (error) => {
+        console.log(error);
+      }
+    );
+  }
+
   return (
     <Container maxWidth="md">
       {isLoaded && <Typography variant="h2" component="h2" gutterBottom>Waypoints</Typography> }
       {!isLoaded && <Typography variant="h2" component="h2" gutterBottom>Loading</Typography> }
+
+      { pendingCount && (
+        <Alert
+          severity="warning"
+          style={{marginBottom: '16px'}}
+          action={
+            <Button color="inherit" size="small" onClick={handlePending}>
+              Process
+            </Button>
+          }
+        >
+          There are {pendingCount} waypoints missing a geocode response.
+        </Alert>
+      )}
 
       <TableContainer component={Paper}>
         <Table>
