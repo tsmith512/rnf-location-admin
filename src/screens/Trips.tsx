@@ -30,7 +30,11 @@ class Trips extends React.Component<{}, { isError: boolean, isLoaded: boolean, t
   }
 
   componentDidMount() {
-    fetch(`${process.env.REACT_APP_API_HOSTNAME}/trips`)
+    fetch(`${process.env.REACT_APP_API_HOSTNAME}/trips`, {
+      headers: {
+        'Authorization': 'Basic ' + btoa(`${process.env.REACT_APP_API_USERNAME}:${process.env.REACT_APP_API_PASSWORD}`),
+      },
+    })
     .then(res => res.json())
     .then(
       (result) => {

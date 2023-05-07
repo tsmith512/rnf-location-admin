@@ -13,20 +13,15 @@ import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import SaveIcon from '@mui/icons-material/Save';
 import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
 
-import AdapterDateFns from '@mui/lab/AdapterDayjs';
-import LocalizationProvider from '@mui/lab/LocalizationProvider';
-
 import React from 'react';
 
 import { Link, RouteComponentProps, withRouter } from 'react-router-dom';
-import { DateTimePicker } from '@mui/lab';
-
-import { Loader } from '@googlemaps/js-api-loader';
-
-const loader = new Loader({
-  apiKey: process.env.REACT_APP_GMAPS_API_KEY || '',
-  version: 'weekly',
-});
+import { DateTimePicker, LocalizationProvider } from '@mui/x-date-pickers';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import dayjs from 'dayjs';
+import 'dayjs/locale/en';
+import timezone from 'dayjs/plugin/timezone';
+import utc from 'dayjs/plugin/utc';
 
 // These two nested types made Typescript happy using withRouter & params.
 type PathParamsType = {
@@ -36,8 +31,6 @@ type PathParamsType = {
 type PropsType = RouteComponentProps<PathParamsType>;
 
 class TripDetails extends React.Component<PropsType, { isError: boolean, isLoaded: boolean, isCreate: boolean, trip: any }> {
-  map!: google.maps.Map;
-
   constructor(props: any) {
     super(props);
 
@@ -51,6 +44,9 @@ class TripDetails extends React.Component<PropsType, { isError: boolean, isLoade
     this.handleUpdate = this.handleUpdate.bind(this);
     this.saveRecord = this.saveRecord.bind(this);
     this.deleteRecord = this.deleteRecord.bind(this);
+
+    dayjs.extend(utc);
+    dayjs.extend(timezone);
   }
 
   componentDidMount() {
@@ -70,36 +66,6 @@ class TripDetails extends React.Component<PropsType, { isError: boolean, isLoade
             isError: false,
             isCreate: false,
             trip: result,
-          });
-
-          loader.load().then(() => {
-            this.map = new google.maps.Map(document.getElementById('map') as HTMLElement, {
-              center: {
-                lat: 36.156900,
-                lng: -95.991500,
-              },
-              zoom: 4,
-              mapTypeId: 'terrain',
-            });
-
-            this.map.data.addGeoJson({
-              type: 'Feature',
-              geometry: result.line,
-            });
-
-            this.map.data.setStyle({
-              strokeColor: '#FF3300',
-              strokeWeight: 2,
-            });
-
-            const boundaries = result.boundaries.match(/-?\d+\.\d+/g);
-
-            this.map.fitBounds({
-              west: parseFloat(boundaries[0]),
-              south: parseFloat(boundaries[1]),
-              east: parseFloat(boundaries[2]),
-              north: parseFloat(boundaries[3]),
-            });
           });
         },
         (error) => {
@@ -227,8 +193,8 @@ class TripDetails extends React.Component<PropsType, { isError: boolean, isLoade
     const { isLoaded, trip } = this.state;
 
     if (isLoaded) {
-      const start = trip.start ? new Date(trip.start * 1000) : new Date();
-      const end = trip.start ? new Date(trip.end * 1000) : new Date();
+      const start = trip.start ? dayjs.unix(trip.start).local() : dayjs();
+      const end = trip.start ? dayjs.unix(trip.end).local() : dayjs();
 
       return (
         <Container maxWidth="md">
@@ -238,7 +204,6 @@ class TripDetails extends React.Component<PropsType, { isError: boolean, isLoade
           { trip.id && <Typography variant="h2" component="h2" gutterBottom>Details #{trip.id}</Typography> }
           { !trip.id && <Typography variant="h2" component="h2" gutterBottom>Create</Typography> }
           <Card>
-            { trip.line && <div id="map"></div> }
             <CardContent>
               <Box component="form" sx={{ m: [1, 0],
                 '& > :not(style)': { marginBottom: 2, width: '100%' },
@@ -248,19 +213,19 @@ class TripDetails extends React.Component<PropsType, { isError: boolean, isLoade
                 <TextField defaultValue={trip.slug} label="Slug" name="slug" variant="outlined" onChange={this.handleUpdate} />
                 <TextField defaultValue={trip.label} label="Label" name="label" variant="outlined" onChange={this.handleUpdate} />
               </Box>
-              <LocalizationProvider dateAdapter={AdapterDateFns}>
+              <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="en">
                 <Box sx={{ m: [1, 0],
                   '& > :not(style)': { marginBottom: 2, width: '100%' },
                 }}>
-                  <DateTimePicker renderInput={(props) => <TextField {...props} />}
+                  <DateTimePicker
                     label="Start"
                     value={start}
-                    onChange={n => {this.handleTimeUpdate('start', n)}}
+                    onChange={(n: any) => {this.handleTimeUpdate('start', n)}}
                     />
-                  <DateTimePicker renderInput={(props) => <TextField {...props} />}
+                  <DateTimePicker
                     label="End"
                     value={end}
-                    onChange={n => {this.handleTimeUpdate('end', n)}}
+                    onChange={(n: any) => {this.handleTimeUpdate('end', n)}}
                     />
                     <Typography variant="caption" component="p"><em>* Device local time</em></Typography>
                 </Box>
